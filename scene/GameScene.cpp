@@ -18,6 +18,9 @@ GameScene::~GameScene() {
 	//プレイヤー
 	delete modelPlayer_;
 
+	//ビーム
+	delete modelBeam_;
+
 }
 
 
@@ -63,12 +66,24 @@ void GameScene::Initialize() {
 	modelPlayer_ = Model::Create();
 	worldTransformPlayer_.scale_ = {0.5f, 0.5f, 0.5f};
 	worldTransformPlayer_.Initialize();
+
+	//ビーム
+	textureHandleBeam_ = TextureManager::Load("beam.png");
+	modelBeam_ = Model::Create();
+	worldTransformBeam_.scale_ = {0.3f, 0.3f, 0.3f};
+	worldTransformBeam_.Initialize();
 }
 
 //更新
 void GameScene::Update() {
 
 	PlayerUpdate();    //プレイヤー更新
+
+	BeamUpdate();   //ビーム更新
+
+	BeamBorn();  //ビーム発生
+
+	BeamMove();  //ビーム移動
 
 }
 
@@ -97,6 +112,44 @@ void GameScene::PlayerUpdate() {
 	}
 }
 
+//ビーム更新
+void GameScene::BeamUpdate() {
+
+	//変換行列を更新
+	worldTransformBeam_.matWorld_ = MakeAffineMatrix(
+	    worldTransformBeam_.scale_, worldTransformBeam_.rotation_,
+	    worldTransformBeam_.translation_);
+	//変換行列を定数バッファに転送
+	worldTransformBeam_.TransferMatrix();
+}
+
+//ビーム移動
+void GameScene::BeamMove() { 
+
+	worldTransformBeam_.translation_.z += 0.5f;
+	
+	if (worldTransformBeam_.translation_.z >= 40) {
+		    beamFlag_ = 0;
+	}
+	worldTransformBeam_.rotation_.x += 0.1f;
+	
+}
+
+//ビーム発生（発射）
+void GameScene::BeamBorn() {
+
+	if (beamFlag_==0) {
+
+		worldTransformBeam_.translation_.x = worldTransformPlayer_.translation_.x;
+		worldTransformBeam_.translation_.z = worldTransformPlayer_.translation_.z;
+
+		if (input_->PushKey(DIK_SPACE)) {
+			beamFlag_ = 1;
+		}
+	}
+	
+}
+
 //描画
 void GameScene::Draw() {
 
@@ -110,6 +163,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
+
 	
 	//背景
 	spriteBG_->Draw();
@@ -133,6 +187,11 @@ void GameScene::Draw() {
 
 	//プレイヤー
 	modelPlayer_->Draw(worldTransformPlayer_, viewProjection_, textureHandlePlayer_);
+
+	//ビーム
+	if (beamFlag_ == 1) {
+		modelBeam_->Draw(worldTransformBeam_, viewProjection_, textureHandleBeam_);
+	}	
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
