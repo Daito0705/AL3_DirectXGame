@@ -81,4 +81,16 @@ private: // メンバ変数
 
 	void BeamBorn();  //ビーム発生
 
+	//敵
+	uint32_t textureHandleEnemy_ = 0;
+	Model* modelEnemy_ = nullptr;
+	WorldTransform worldTransformEnemy_;
+
+	void EnemyUpdate();  //敵更新
+	void EnemyMove();   //敵移動
+
+	int enemyFlag_ = 1;  //敵存在フラグ
+
+	void EnemyBorn();  //敵発生
+
 };

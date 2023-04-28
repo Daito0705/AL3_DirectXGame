@@ -2,6 +2,7 @@
 #include "TextureManager.h"
 #include <cassert>
 #include "MathUtilityForText.h"
+#include <time.h>
 
 //コンストラクタ
 GameScene::GameScene() {}
@@ -20,6 +21,10 @@ GameScene::~GameScene() {
 
 	//ビーム
 	delete modelBeam_;
+
+	//敵
+	delete modelEnemy_;
+
 
 }
 
@@ -72,6 +77,14 @@ void GameScene::Initialize() {
 	modelBeam_ = Model::Create();
 	worldTransformBeam_.scale_ = {0.3f, 0.3f, 0.3f};
 	worldTransformBeam_.Initialize();
+
+	//敵
+	textureHandleEnemy_ = TextureManager::Load("enemy.png");
+	modelEnemy_ = Model::Create();
+	worldTransformEnemy_.scale_ = {0.5f, 0.5f, 0.5f};
+	worldTransformEnemy_.Initialize();
+
+	srand((unsigned int)time(NULL));
 }
 
 //更新
@@ -84,6 +97,12 @@ void GameScene::Update() {
 	BeamBorn();  //ビーム発生
 
 	BeamMove();  //ビーム移動
+
+	EnemyUpdate();  //敵更新
+
+	EnemyBorn();  //発生
+
+	EnemyMove();  //敵移動
 
 }
 
@@ -150,6 +169,46 @@ void GameScene::BeamBorn() {
 	
 }
 
+//敵更新
+void GameScene::EnemyUpdate() { 
+
+	//変換行列を更新
+	worldTransformEnemy_.matWorld_ = MakeAffineMatrix(
+	    worldTransformEnemy_.scale_, worldTransformEnemy_.rotation_,
+	    worldTransformEnemy_.translation_);
+	//変換行列を定数バッファに転送
+	worldTransformEnemy_.TransferMatrix();
+}
+
+//敵移動
+void GameScene::EnemyMove() {
+
+	if (enemyFlag_==1) {
+		worldTransformEnemy_.translation_.z -= 0.5;
+	}
+	if (worldTransformEnemy_.translation_.z <= -5) {
+		enemyFlag_ = 0;
+	}
+
+	worldTransformEnemy_.rotation_.x -= 0.1f;
+
+}
+
+//敵発生
+void GameScene::EnemyBorn() { 
+    if (enemyFlag_ == 0) {
+		enemyFlag_ = 1;
+	    worldTransformEnemy_.translation_.z = 40;
+
+		//乱数でX座標の指定
+		int x = rand() % 80;
+		float x2 = (float)x / 10 - 4;
+		worldTransformEnemy_.translation_.x = x2;
+	}
+	
+}
+
+
 //描画
 void GameScene::Draw() {
 
@@ -191,7 +250,10 @@ void GameScene::Draw() {
 	//ビーム
 	if (beamFlag_ == 1) {
 		modelBeam_->Draw(worldTransformBeam_, viewProjection_, textureHandleBeam_);
-	}	
+	}
+
+	//敵
+	modelEnemy_->Draw(worldTransformEnemy_, viewProjection_, textureHandleEnemy_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
