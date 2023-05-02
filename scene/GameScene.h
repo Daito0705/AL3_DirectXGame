@@ -90,7 +90,7 @@ private: // メンバ変数
 	void EnemyUpdate();  //敵更新
 	void EnemyMove();   //敵移動
 
-	int enemyFlag_ = 1;  //敵存在フラグ
+	int enemyFlag_ = 0;  //敵存在フラグ
 
 	void EnemyBorn();  //敵発生
 

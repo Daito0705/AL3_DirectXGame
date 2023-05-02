@@ -108,7 +108,7 @@ void GameScene::Update() {
 
 	EnemyMove();  //敵移動
 
-	Collsion();
+	Collsion();  //衝突判定
 
 }
 
@@ -172,7 +172,6 @@ void GameScene::BeamBorn() {
 			beamFlag_ = 1;
 		}
 	}
-	
 }
 
 //敵更新
@@ -197,7 +196,6 @@ void GameScene::EnemyMove() {
 	}
 
 	worldTransformEnemy_.rotation_.x -= 0.1f;
-
 }
 
 //敵発生
@@ -239,7 +237,7 @@ void GameScene::CollisionPlayerEnemy() {
 
 void GameScene::CollisionBeamEnemy() {
 	//敵が存在すれば
-	if (enemyFlag_ == 1) {
+	if (enemyFlag_ == 1 && beamFlag_ == 1) {
 		//差を求める
 		float dx = abs(worldTransformBeam_.translation_.x - worldTransformEnemy_.translation_.x);
 		float dz = abs(worldTransformBeam_.translation_.z - worldTransformEnemy_.translation_.z);
