@@ -106,4 +106,11 @@ private: // メンバ変数
 
 	int playerLife_ = 3; //プレイヤーライフ
 
+	void GameplayUpdate();  //ゲームプレイ更新
+	void GameplayDraw3D();  //ゲームプレイ3D表示
+	void GameplayDraw2DBack();  //ゲームプレイ背景2D表示
+	void GameplayDraw2DNear();  //ゲームプレイ近景2D表示
+
+	int sceneMode_ = 0; //シーンモード(0:ゲームプレイ　1:タイトル)
+
 };

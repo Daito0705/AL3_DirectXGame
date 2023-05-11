@@ -12,20 +12,14 @@ GameScene::~GameScene() {
 
 	//BG
 	delete spriteBG_;
-
 	//ステージ
 	delete modelstage_;
-
 	//プレイヤー
 	delete modelPlayer_;
-
 	//ビーム
 	delete modelBeam_;
-
 	//敵
 	delete modelEnemy_;
-
-
 }
 
 
@@ -93,23 +87,24 @@ void GameScene::Initialize() {
 
 //更新
 void GameScene::Update() {
-
-	PlayerUpdate();    //プレイヤー更新
-
-	BeamUpdate();   //ビーム更新
-
 	BeamBorn();  //ビーム発生
-
 	BeamMove();  //ビーム移動
-
-	EnemyUpdate();  //敵更新
-
 	EnemyBorn();  //発生
-
 	EnemyMove();  //敵移動
+	//各シーンの更新処理を呼び出す
+	switch (sceneMode_) {
+	case 0:
+		GameplayUpdate(); //ゲームプレイ更新
+		break;
+	}	
+}
 
-	Collsion();  //衝突判定
-
+//ゲームプレイ更新
+void GameScene::GameplayUpdate() {
+	PlayerUpdate(); //プレイヤー更新
+	EnemyUpdate();  //敵更新
+	BeamUpdate();   //ビーム更新
+	Collsion();     //衝突判定
 }
 
 void GameScene::PlayerUpdate() {
@@ -209,7 +204,6 @@ void GameScene::EnemyBorn() {
 		float x2 = (float)x / 10 - 4;
 		worldTransformEnemy_.translation_.x = x2;
 	}
-	
 }
 
 void GameScene::Collsion() {
@@ -250,6 +244,43 @@ void GameScene::CollisionBeamEnemy() {
 	}
 }
 
+//ゲームプレイ表示3D
+void GameScene::GameplayDraw3D() {
+	//ステージ
+	modelstage_->Draw(worldTransformStage_, viewProjection_, textureHandleStage_);
+
+	//プレイヤー
+	modelPlayer_->Draw(worldTransformPlayer_, viewProjection_, textureHandlePlayer_);
+
+	//ビーム
+	if (beamFlag_ == 1) {
+		modelBeam_->Draw(worldTransformBeam_, viewProjection_, textureHandleBeam_);
+	}
+
+	//敵
+	if (enemyFlag_ == 1) {
+		modelEnemy_->Draw(worldTransformEnemy_, viewProjection_, textureHandleEnemy_);
+	}
+}
+
+//ゲームプレイ表示2D近景
+void GameScene::GameplayDraw2DNear() {
+	//ゲームスコア
+	char str[100];
+	sprintf_s(str, "SCORE %d", gameScore_);
+	debugText_->Print(str, 200, 10, 2);
+
+	//プレイヤーライフ
+	char str2[100];
+	sprintf_s(str2, "LIFE %d", playerLife_);
+	debugText_->Print(str2, 900, 10, 2);
+}
+
+//ゲームプレイ表示2D背景
+void GameScene::GameplayDraw2DBack() {
+	//背景
+	spriteBG_->Draw();
+}
 
 //描画
 void GameScene::Draw() {
@@ -264,21 +295,18 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
-
 	
-	//背景
-	spriteBG_->Draw();
+	
+	//各シーンの背景2D表示を呼び出す
+	switch (sceneMode_) { 
+	case 0:	
+		GameplayDraw2DBack(); //ゲームプレイ表示2D背景
+		break;
+	}
 
+	//背景
 	debugText_->Print("", 10, 10, 2);
 	debugText_->DrawAll();
-
-	char str[100];
-	sprintf_s(str, "SCORE %d", gameScore_);
-	debugText_->Print(str, 200, 10, 2);
-
-	char str2[100];
-	sprintf_s(str2, "LIFE %d", playerLife_);
-	debugText_->Print(str2, 900, 10, 2);
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -294,20 +322,12 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 
-	//ステージ
-	modelstage_->Draw(worldTransformStage_, viewProjection_, textureHandleStage_);
-
-	//プレイヤー
-	modelPlayer_->Draw(worldTransformPlayer_, viewProjection_, textureHandlePlayer_);
-
-	//ビーム
-	if (beamFlag_ == 1) {
-		modelBeam_->Draw(worldTransformBeam_, viewProjection_, textureHandleBeam_);
-	}
-
-	//敵
-	modelEnemy_->Draw(worldTransformEnemy_, viewProjection_, textureHandleEnemy_);
-
+	switch (sceneMode_) {
+	case 0:
+		GameplayDraw3D();
+		break;
+	}	
+	
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
@@ -319,6 +339,12 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
+	
+	switch (sceneMode_) {
+	case 0:
+		GameplayDraw2DNear();
+		break;
+	}	
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
