@@ -110,7 +110,26 @@ private: // メンバ変数
 	void GameplayDraw3D();  //ゲームプレイ3D表示
 	void GameplayDraw2DBack();  //ゲームプレイ背景2D表示
 	void GameplayDraw2DNear();  //ゲームプレイ近景2D表示
+	void GameOverDraw2DNear(); //ゲームオーバー近景2D表示
 
-	int sceneMode_ = 0; //シーンモード(0:ゲームプレイ　1:タイトル)
+	int sceneMode_ = 1; //シーンモード(0:ゲームプレイ　1:タイトル 2:ゲームオーバー)
 
+	void TitleUpdate(); //タイトル更新
+	void TitleDraw2DNear(); //タイトル2D
+
+	//タイトル(スプライト)
+	uint32_t textureHandleTitle_ = 0;
+	Sprite* spriteTitle_ = nullptr;
+
+	int gameTimer_ = 0;
+
+	//エンタースプライト
+	uint32_t textureHandleEnter_ = 0;
+	Sprite* spriteEnter_ = nullptr;
+
+	//ゲームオーバースプライト
+	uint32_t textureHandleGameOver_ = 0;
+	Sprite* spriteGameOver_ = nullptr;
+
+	void GamePlayStart(); //ゲームプレイ開始関数
 };

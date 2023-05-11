@@ -20,8 +20,13 @@ GameScene::~GameScene() {
 	delete modelBeam_;
 	//敵
 	delete modelEnemy_;
+	//タイトル
+	delete spriteTitle_;
+	//エンター
+	delete spriteEnter_;
+	//ゲームオーバー
+	delete spriteGameOver_;
 }
-
 
 //初期化
 void GameScene::Initialize() {
@@ -83,20 +88,65 @@ void GameScene::Initialize() {
 	//デバッグテキスト
 	debugText_ = DebugText::GetInstance();
 	debugText_->Initialize();
+
+	//タイトル(2Dスプライト)
+	textureHandleTitle_ = TextureManager::Load("title.png");
+	spriteTitle_ = Sprite::Create(textureHandleTitle_, {0, 0});
+
+	//エンター
+	textureHandleEnter_ = TextureManager::Load("enter.png");
+	spriteEnter_ = Sprite::Create(textureHandleEnter_, {400, 400});
+
+	//ゲームオーバー
+	textureHandleGameOver_ = TextureManager::Load("gameover.png");
+	spriteGameOver_ = Sprite::Create(textureHandleGameOver_, {0, 100});
+}
+
+//ゲーム開始関数
+void GameScene::GamePlayStart() 
+{
+	//プレイヤー
+	textureHandlePlayer_ = TextureManager::Load("player.png");
+	modelPlayer_ = Model::Create();
+	worldTransformPlayer_.scale_ = {0.5f, 0.5f, 0.5f};
+	worldTransformPlayer_.Initialize();
+
+	//変換行列を更新
+	worldTransformPlayer_.matWorld_ = MakeAffineMatrix(
+	    worldTransformPlayer_.scale_, worldTransformPlayer_.rotation_,
+	    worldTransformPlayer_.translation_);
+	//変換行列を定数バッファに転送
+	worldTransformPlayer_.TransferMatrix();
+
+	//ビーム
+	textureHandleBeam_ = TextureManager::Load("beam.png");
+	modelBeam_ = Model::Create();
+	worldTransformBeam_.scale_ = {0.3f, 0.3f, 0.3f};
+	worldTransformBeam_.Initialize();
+
+	//敵
+	textureHandleEnemy_ = TextureManager::Load("enemy.png");
+	modelEnemy_ = Model::Create();
+	worldTransformEnemy_.scale_ = {0.5f, 0.5f, 0.5f};
+	worldTransformEnemy_.Initialize();
+
+	gameScore_ = 0; //ゲームスコア
+	playerLife_ = 3; //プレイヤーライフ
+
 }
 
 //更新
 void GameScene::Update() {
-	BeamBorn();  //ビーム発生
-	BeamMove();  //ビーム移動
-	EnemyBorn();  //発生
-	EnemyMove();  //敵移動
 	//各シーンの更新処理を呼び出す
 	switch (sceneMode_) {
 	case 0:
 		GameplayUpdate(); //ゲームプレイ更新
 		break;
+	case 1:
+		TitleUpdate(); //タイトル更新
+		break;
 	}	
+	gameTimer_++;
 }
 
 //ゲームプレイ更新
@@ -105,6 +155,14 @@ void GameScene::GameplayUpdate() {
 	EnemyUpdate();  //敵更新
 	BeamUpdate();   //ビーム更新
 	Collsion();     //衝突判定
+	BeamBorn();  //ビーム発生
+	BeamMove();  //ビーム移動
+	EnemyBorn();  //発生
+	EnemyMove();  //敵移動
+
+	if (playerLife_ <= 0) {
+		sceneMode_ = 2;
+	}
 }
 
 void GameScene::PlayerUpdate() {
@@ -244,6 +302,15 @@ void GameScene::CollisionBeamEnemy() {
 	}
 }
 
+//タイトル更新
+void GameScene::TitleUpdate() {
+	if (input_->TriggerKey(DIK_RETURN)) {
+		//ゲームプレイへ変更
+		sceneMode_ = 0;
+		GamePlayStart();
+	}
+}
+
 //ゲームプレイ表示3D
 void GameScene::GameplayDraw3D() {
 	//ステージ
@@ -282,6 +349,21 @@ void GameScene::GameplayDraw2DBack() {
 	spriteBG_->Draw();
 }
 
+//タイトル表示
+void GameScene::TitleDraw2DNear() { 
+	spriteTitle_->Draw(); 
+	//エンター表示
+	if (gameTimer_%40>=20) 
+	{
+		spriteEnter_->Draw();
+	}
+}
+
+void GameScene::GameOverDraw2DNear() 
+{ 	
+	spriteGameOver_->Draw();
+}
+
 //描画
 void GameScene::Draw() {
 
@@ -296,11 +378,13 @@ void GameScene::Draw() {
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
 	
-	
 	//各シーンの背景2D表示を呼び出す
 	switch (sceneMode_) { 
 	case 0:	
 		GameplayDraw2DBack(); //ゲームプレイ表示2D背景
+		break;
+	case 2:
+		GameplayDraw2DBack();
 		break;
 	}
 
@@ -326,6 +410,9 @@ void GameScene::Draw() {
 	case 0:
 		GameplayDraw3D();
 		break;
+	case 2:
+		GameplayDraw3D();
+		break;
 	}	
 	
 	// 3Dオブジェクト描画後処理
@@ -344,7 +431,20 @@ void GameScene::Draw() {
 	case 0:
 		GameplayDraw2DNear();
 		break;
-	}	
+	case 1:
+		TitleDraw2DNear();
+		break;
+	case 2:
+		GameOverDraw2DNear();
+		if (gameTimer_ % 40 >= 20) {
+			spriteEnter_->Draw();
+		}
+		if (input_->TriggerKey(DIK_RETURN)) {
+			//タイトルへ変更
+			sceneMode_ = 1;
+		}
+		break;	
+	}
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
