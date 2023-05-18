@@ -103,6 +103,16 @@ void GameScene::Initialize() {
 	//ゲームオーバー
 	textureHandleGameOver_ = TextureManager::Load("gameover.png");
 	spriteGameOver_ = Sprite::Create(textureHandleGameOver_, {0, 100});
+
+	//サウンドデータの読み込み
+	soundDataHandleTitleBGM_ = audio_->LoadWave("Audio/Ring05.wav");
+	soundDataHandleGamePlayBGM_ = audio_->LoadWave("Audio/Ring08.wav");
+	soundDataHandleGameOverBGM_ = audio_->LoadWave("Audio/Ring09.wav");
+	soundDataHandleEnemyHitSE_ = audio_->LoadWave("Audio/chord.wav");
+	soundDataHandlePlayerHitSE_ = audio_->LoadWave("Audio/tada.wav");
+
+	//タイトルBGMを再生
+	voiceHandleBGM_ = audio_->PlayWave(soundDataHandleTitleBGM_, true);
 }
 
 //ゲーム開始関数
@@ -160,9 +170,9 @@ void GameScene::GameplayUpdate() {
 	EnemyUpdate();  //敵更新
 	BeamUpdate();   //ビーム更新
 	Collsion();     //衝突判定
-
-	if (playerLife_ <= 0) {
-		sceneMode_ = 2;
+	if (playerLife_ == 0) {
+		audio_->StopWave(voiceHandleBGM_);
+		voiceHandleBGM_ = audio_->PlayWave(soundDataHandleGameOverBGM_, true);
 	}
 }
 
@@ -188,6 +198,10 @@ void GameScene::PlayerUpdate() {
 	}
 	if (worldTransformPlayer_.translation_.x <= -4) {
 		worldTransformPlayer_.translation_.x = -4;
+	}
+
+	if (playerLife_ <= 0) {
+		sceneMode_ = 2;
 	}
 }
 
@@ -321,7 +335,10 @@ void GameScene::CollisionPlayerEnemy() {
 			if (dx < 1 && dz < 1) {
 				//存在しない
 				enemyFlag_[i] = 0;
+				//ライフ減算
 				playerLife_ -= 1;
+				//プレイヤーヒットSE
+				audio_->PlayWave(soundDataHandlePlayerHitSE_);
 			}
 		}
 	}
@@ -348,6 +365,8 @@ void GameScene::CollisionBeamEnemy() {
 						//存在しない
 						enemyFlag_[e] = 0;
 						gameScore_ += 100;
+						//敵ヒットSE
+						audio_->PlayWave(soundDataHandleEnemyHitSE_);
 					}
 				}			
 			}
@@ -361,6 +380,9 @@ void GameScene::TitleUpdate() {
 		GamePlayStart(); //ゲーム開始関数
 		//ゲームプレイへ変更
 		sceneMode_ = 0;
+		//BGM切り替え
+		audio_->StopWave(voiceHandleBGM_);//現在のBGMを停止
+		voiceHandleBGM_ = audio_->PlayWave(soundDataHandleGamePlayBGM_, true);//ゲームプレイBGMを再生
 	}
 }
 
@@ -369,6 +391,9 @@ void GameScene::GameOverUpdate() {
 	if (input_->TriggerKey(DIK_RETURN)) {
 		//タイトルへ変更
 		sceneMode_ = 1;
+		// BGM切り替え
+		audio_->StopWave(voiceHandleBGM_); //現在のBGMを停止
+		voiceHandleBGM_ = audio_->PlayWave(soundDataHandleTitleBGM_, true); //ゲームオーバーBGMを再生
 	}
 }
 
