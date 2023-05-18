@@ -71,26 +71,26 @@ private: // メンバ変数
 	
 	//ビーム
 	uint32_t textureHandleBeam_ = 0;
-	Model* modelBeam_ = nullptr;
-	WorldTransform worldTransformBeam_;
+	Model* modelBeam_ = {};
+	WorldTransform worldTransformBeam_[10];
 
 	void BeamUpdate();   //ビーム更新
 
 	void BeamMove();   //ビーム移動
 
-	int beamFlag_ = 0;   //ビーム生存フラグ
+	int beamFlag_[10] = {}; //ビーム生存フラグ
 
 	void BeamBorn();  //ビーム発生
 
 	//敵
 	uint32_t textureHandleEnemy_ = 0;
-	Model* modelEnemy_ = nullptr;
-	WorldTransform worldTransformEnemy_;
+	Model* modelEnemy_ = {};
+	WorldTransform worldTransformEnemy_[10];
 
 	void EnemyUpdate();  //敵更新
 	void EnemyMove();   //敵移動
 
-	int enemyFlag_ = 0;  //敵存在フラグ
+	int enemyFlag_[10] = {}; //敵存在フラグ
 
 	void EnemyBorn();  //敵発生
 
@@ -111,6 +111,7 @@ private: // メンバ変数
 	void GameplayDraw2DBack();  //ゲームプレイ背景2D表示
 	void GameplayDraw2DNear();  //ゲームプレイ近景2D表示
 	void GameOverDraw2DNear(); //ゲームオーバー近景2D表示
+	void GameOverUpdate();
 
 	int sceneMode_ = 1; //シーンモード(0:ゲームプレイ　1:タイトル 2:ゲームオーバー)
 
@@ -132,4 +133,8 @@ private: // メンバ変数
 	Sprite* spriteGameOver_ = nullptr;
 
 	void GamePlayStart(); //ゲームプレイ開始関数
+
+	int beamTimer_ = 0; //ビーム発射タイマー
+
+	float enemySpeed_[10] = {}; //敵のスピード
 };
