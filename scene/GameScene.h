@@ -60,7 +60,7 @@ private: // メンバ変数
 	//ステージ
 	uint32_t textureHandleStage_ = 0;
 	Model* modelstage_ = nullptr;
-	WorldTransform worldTransformStage_;
+	WorldTransform worldTransformStage_[20];
 
 	//プレイヤー
 	uint32_t textureHandlePlayer_ = 0;
@@ -144,4 +144,10 @@ private: // メンバ変数
 	uint32_t soundDataHandleEnemyHitSE_ = 0; //敵ヒットSE
 	uint32_t soundDataHandlePlayerHitSE_ = 0; //プレイヤーヒットSE
 	uint32_t voiceHandleBGM_ = 0; //音声再生ハンドル
+
+	void StageUpdate(); //ステージ更新関数
+
+	float enemyJumpSpeed_[10] = {}; //敵ジャンプの移動速度
+
+	void EnemyJump(); //敵ジャンプ
 };
