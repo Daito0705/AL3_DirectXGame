@@ -150,4 +150,21 @@ private: // メンバ変数
 	float enemyJumpSpeed_[10] = {}; //敵ジャンプの移動速度
 
 	void EnemyJump(); //敵ジャンプ
+
+	//スコア数値（スプライト）
+	uint32_t textureHandleNumber_ = 0;
+	Sprite* spriteNumber_[5] = {};
+
+	void DrawScore();
+
+	uint32_t textureHandleScore_ = 0;
+	Sprite* spriteScore_ = nullptr;
+
+	//プレイヤーライフ(スプライト)
+	uint32_t textureHandleLife_ = 0;
+	Sprite* spriteLife_[3] = {};
+
+	void DrawLife();
+
+	int playerTimer_ = 0;
 };
