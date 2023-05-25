@@ -43,7 +43,7 @@ void GameScene::Initialize() {
 	viewProjection_.Initialize();
 
 	//ステージ
-	textureHandleStage_ = TextureManager::Load("stage.jpg");
+	textureHandleStage_ = TextureManager::Load("stage2.jpg");
 	modelstage_ = Model::Create();
 	for (int i = 0; i < 20; i++) {
 		worldTransformStage_[i].Initialize();
@@ -56,8 +56,8 @@ void GameScene::Initialize() {
 
 	//ステージの位置を変更
 	for (int i = 0; i < 20; i++) {
-		worldTransformStage_[i].translation_ = {0, -1.5f, 0};
-		worldTransformStage_[i].scale_ = {4.5f, 1, 40};
+		worldTransformStage_[i].translation_ = {0, -1.5f, 2.0f * i - 5};
+		worldTransformStage_[i].scale_ = {4.5f, 1, 1};
 
 		//変換行列を更新
 		worldTransformStage_[i].matWorld_ = MakeAffineMatrix(
